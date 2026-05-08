@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { RefreshCw, TrendingUp, TrendingDown, Info } from "lucide-react"
+import { KpiCard } from "@/components/ui/kpi-card"
 import type { StockPriceResponse, StockPurchasesResponse, Config } from "@/lib/types"
 
 const fmt     = (n: number) => n.toLocaleString("th-TH", { maximumFractionDigits: 0 })
@@ -64,56 +65,54 @@ export function StockSection() {
   return (
     <div className="space-y-6">
 
-      {/* Live price widget */}
-      <Card className="">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base font-semibold">{config?.stock_ticker ?? "WDC"} Live Price</CardTitle>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => refetch()}
-              disabled={isFetching}
-              className="h-7 text-xs gap-1.5"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
-              Refresh
-            </Button>
-          </div>
+      {/* Live price — KPI cards */}
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-sm font-semibold">{config?.stock_ticker ?? "WDC"} Live Price</p>
+        <div className="flex items-center gap-2">
           {price?.fetched_at && (
-            <p className="text-xs text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               As of {new Date(price.fetched_at).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })} BKK
-            </p>
+            </span>
           )}
-        </CardHeader>
-        <CardContent>
-          {isPriceLoading ? (
-            <div className="space-y-2">
-              <Skeleton className="h-10 w-32" />
-              <Skeleton className="h-4 w-48" />
-              <Skeleton className="h-4 w-40 mt-2" />
-            </div>
-          ) : (
-            <div className="flex flex-wrap gap-6 items-end">
-              <div>
-                <p className={`text-4xl font-bold tabular-nums ${price ? (dayUp ? "text-emerald-400" : "text-rose-400") : "text-foreground"}`}>
-                  {price ? fmtUSD(price.price_usd) : "—"}
-                </p>
-                {price && (
-                  <div className={`inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-full text-sm font-semibold ${dayUp ? "bg-emerald-500/15 text-emerald-300" : "bg-rose-500/15 text-rose-300"}`}>
-                    {dayUp ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
-                    {dayUp ? "+" : ""}{fmtUSD(price.day_change_usd)}&nbsp;&nbsp;{dayUp ? "+" : ""}{price.day_change_pct.toFixed(2)}%
-                  </div>
-                )}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                <p>USD/THB: <span className="font-semibold text-foreground">{price?.usd_thb_rate.toFixed(2) ?? "—"}</span></p>
-                <p className="mt-0.5">H1 buy: <span className="font-semibold text-foreground">${PURCHASE_CONFIGS.H1.usd.toFixed(2)}</span> · H2 buy: <span className="font-semibold text-foreground">${PURCHASE_CONFIGS.H2.usd.toFixed(2)}</span></p>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching} className="h-7 text-xs gap-1.5">
+            <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+        </div>
+      </div>
+
+      {isPriceLoading ? (
+        <div className="grid grid-cols-3 gap-3">
+          {[0, 1, 2].map(i => <Skeleton key={i} className="h-20 rounded-xl" />)}
+        </div>
+      ) : (
+        <div className="grid grid-cols-3 gap-3">
+          <KpiCard
+            label={`${config?.stock_ticker ?? "WDC"} Price`}
+            value={price ? fmtUSD(price.price_usd) : "—"}
+            trend={dayUp ? "up" : "down"}
+            tone={price ? (dayUp ? "success" : "danger") : "default"}
+            caption="Current market price"
+            size="sm"
+          />
+          <KpiCard
+            label="Day Change"
+            value={price ? `${dayUp ? "+" : ""}${fmtUSD(price.day_change_usd)}` : "—"}
+            delta={price ? `${dayUp ? "+" : ""}${price.day_change_pct.toFixed(2)}%` : undefined}
+            trend={dayUp ? "up" : "down"}
+            tone={price ? (dayUp ? "success" : "danger") : "default"}
+            caption="vs yesterday close"
+            size="sm"
+          />
+          <KpiCard
+            label="USD / THB"
+            value={price ? price.usd_thb_rate.toFixed(2) : "—"}
+            tone="default"
+            caption={`H1 buy $${PURCHASE_CONFIGS.H1.usd.toFixed(2)} · H2 buy $${PURCHASE_CONFIGS.H2.usd.toFixed(2)}`}
+            size="sm"
+          />
+        </div>
+      )}
 
       <Separator />
 

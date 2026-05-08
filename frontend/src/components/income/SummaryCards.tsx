@@ -17,7 +17,7 @@ export function SummaryCards() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 w-full">
         {[0, 1, 2, 3, 4].map(i => (
           <Card key={i}>
             <CardContent className="p-3 md:p-5 flex items-center gap-3 md:gap-4">
@@ -35,24 +35,24 @@ export function SummaryCards() {
   }
 
   const cards = [
-    { label: "Gross Income",    value: s?.total_gross,     icon: TrendingUp,  iconClass: "text-blue-400",    badgeClass: "bg-blue-500/15 text-blue-300 hover:bg-blue-500/15" },
-    { label: "Stock (ESPP)",    value: s?.total_stock,     icon: PiggyBank,   iconClass: "text-rose-400",    badgeClass: "bg-rose-500/15 text-rose-300 hover:bg-rose-500/15" },
-    { label: "Est. Tax",        value: s?.total_tax,       icon: Landmark,    iconClass: "text-red-400",     badgeClass: "bg-red-500/15 text-red-300 hover:bg-red-500/15" },
-    { label: "Net After Stock", value: s?.total_net,       icon: Wallet,      iconClass: "text-emerald-400", badgeClass: "bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/15" },
-    { label: "Payments",        value: s?.payment_count,   icon: CalendarDays,iconClass: "text-violet-400",  badgeClass: "bg-violet-500/15 text-violet-300 hover:bg-violet-500/15", raw: true },
+    { label: "Gross Income",    value: s?.total_gross,   icon: TrendingUp,   raw: false },
+    { label: "Stock (ESPP)",    value: s?.total_stock,   icon: PiggyBank,    raw: false },
+    { label: "Est. Tax",        value: s?.total_tax,     icon: Landmark,     raw: false },
+    { label: "Net After Stock", value: s?.total_net,     icon: Wallet,       raw: false },
+    { label: "Payments",        value: s?.payment_count, icon: CalendarDays, raw: true  },
   ]
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+    <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 w-full">
       {cards.map(c => (
         <Card key={c.label}>
           <CardContent className="p-3 md:p-5 flex items-center gap-3 md:gap-4">
-            <Badge className={`${c.badgeClass} rounded-xl p-2 md:p-3 h-auto border-0 shrink-0`}>
-              <c.icon className={`w-4 h-4 md:w-5 md:h-5 ${c.iconClass}`} />
+            <Badge className="bg-white/10 text-foreground hover:bg-white/10 rounded-xl p-2 md:p-3 h-auto border-0 shrink-0">
+              <c.icon className="w-4 h-4 md:w-5 md:h-5" />
             </Badge>
             <div className="min-w-0">
               <p className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-wide truncate">{c.label}</p>
-              <p className={`text-base md:text-xl font-bold ${c.iconClass} truncate`}>
+              <p className="text-base md:text-xl font-bold text-foreground truncate">
                 {c.raw ? s?.payment_count ?? "—" : s ? fmt(c.value ?? 0) : "—"}
                 {!c.raw && s && <span className="text-[10px] md:text-xs font-normal text-muted-foreground ml-1">THB</span>}
               </p>

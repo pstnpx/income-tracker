@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+.python-version
+
+# Backend user configs (personal data)
+backend/configs/
+
+# Frontend
+frontend/.next/
+frontend/out/
+frontend/node_modules/
+
+# Env files
+.env
+.env.local
+.env*.local
